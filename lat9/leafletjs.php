@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Web GIS Kabupaten Sleman</title>
+
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
@@ -79,69 +81,63 @@
 <body>
     <h1>Web GIS</h1>
     <h3>Kabupaten Sleman</h3>
+
     <div class="container">
+        <!-- Bagian kiri: tabel -->
         <div class="table-section">
-    <?php
-    // Sesuaikan dengan setting MySQL 
-    $servername = "localhost"; 
-    $username = "root"; 
-    $password = " "; 
-    $dbname = "elang_latihan8";
-    
-    // Create connection 
-    $conn = new mysqli($servername, $username, "", $dbname); 
-    // Check connection 
-    if ($conn->connect_error) { 
-        die("Gagal Koneksi: " . $conn->connect_error); 
-    }
+            <?php
+            // 🔹 Koneksi ke database
+            $conn = new mysqli("localhost", "root", "", "elang_latihan8");
+            if ($conn->connect_error) {
+                die("Koneksi gagal: " . $conn->connect_error);
+            }
 
-    $sql = "SELECT * FROM data_kecamatan"; 
-    //menyimpan eksekusi query
-    $result = $conn->query($sql);
+            // 🔹 Ambil data dari tabel
+            $sql = "SELECT * FROM data_kecamatan";
+            $result = $conn->query($sql);
 
-    echo "<a href='input/index.html'>input</a>";
+            if ($result->num_rows > 0) {
+                echo "<table>";
+                echo "<tr>
+                        <th>Kecamatan</th>
+                        <th>Longitude</th>
+                        <th>Latitude</th>
+                        <th>Luas</th>
+                        <th>Jumlah Penduduk</th>
+                        <th colspan='2'>Aksi</th>
+                    </tr>";
 
-    //memeriksa hasil query apakah memiliki data
-    if ($result->num_rows > 0) { 
-    echo "<table border='1px'><tr>
-    <th>ID</th>
-    <th>Kecamatan</th>
-    <th>Longitude</th>
-    <th>Latitude</th> 
-    <th>Luas</th> 
-    <th>Jumlah Penduduk</th>
-    <th colspan='2'>Aksi</th>";
-    
-    // mengambil data hasil query dan menampilkan dalam array asosiatif 
-    while($row = $result->fetch_assoc()) { 
-        echo "<tr>
-        <td>".$row['id']."</td>
-        <td>".$row["kecamatan"]."</td>
-        <td>".$row["longitude"]."</td>
-        <td>".$row["latitude"]."</td>
-        <td>".$row["luas"]."</td>
-        <td align='right'>".$row["jumlah_penduduk"]."</td>
-        <td><a href='delete.php?id=".$row['id']."'>Hapus</a></td>
-        <td><a href='edit/index.php?id=".$row['id']."'>Edit</a></td>
-        </tr>"; 
+                $markers = []; // untuk peta
 
-        $markers[] = [
-        "kecamatan" => $row["kecamatan"],
-        "latitude" => $row["latitude"],
-        "longitude" => $row["longitude"],
-        "luas" => $row["luas"],
-        "jumlah_penduduk" => $row["jumlah_penduduk"]
-    ];
-    } 
-        echo "</table>"; 
-    } else { 
-        echo "0 results"; 
-    } 
-    $conn->close();
-    ?>
+                while($row = $result->fetch_assoc()) {
+                    $markers[] = $row;
+                    echo "<tr>
+                            <td>{$row['kecamatan']}</td>
+                            <td>{$row['longitude']}</td>
+                            <td>{$row['latitude']}</td>
+                            <td>{$row['luas']}</td>
+                            <td>{$row['jumlah_penduduk']}</td>
+                            <td>
+                                <a href='edit/index.php?id={$row['id']}'>Edit</a>
+                                <a href='delete.php?id={$row['id']}' onclick='return confirm(\"Yakin ingin hapus data ini?\")'>Hapus</a>
+                            </td>
+                        </tr>";
+                }
+
+                echo "</table>";
+            } else {
+                echo "Tidak ada data.";
+            }
+
+            $conn->close();
+            ?>
+        </div>
+
+        <!-- Bagian kanan: peta -->
+        <div id="map"></div>
     </div>
-    <div id="map"></div>
-</div>
+
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
