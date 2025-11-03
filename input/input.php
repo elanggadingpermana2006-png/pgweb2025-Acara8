@@ -1,9 +1,9 @@
 <?php
-$kecamatan = isset($_POST['kecamatan']) ? $_POST['kecamatan'] : '';
-$longitude = isset($_POST['longitude']) ? $_POST['longitude'] : '';
-$latitude = isset($_POST['latitude']) ? $_POST['latitude'] : '';
-$luas = isset($_POST['luas']) ? $_POST['luas'] : '';
-$jumlah_penduduk = isset($_POST['jumlah_penduduk']) ? $_POST['jumlah_penduduk'] : '';
+$kecamatan = $_POST['kecamatan'];
+$longitude = $_POST['longitude']; 
+$latitude = $_POST['latitude']; 
+$luas = $_POST['luas']; 
+$jumlah_penduduk = $_POST['jumlah_penduduk'];
 
 
 // Sesuaikan dengan setting MySQL 
